@@ -17,12 +17,14 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install uv
         uv sync
-    - name: Lint with flake8
+    - name: Lint with flake8 & mypy
       run: |
         # stop the build if there are Python syntax errors or undefined names
         uv run -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         uv run -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        
+        uv run -m mypy src tests
 
   test:
     runs-on: ${{ matrix.os }}
@@ -50,13 +52,13 @@ jobs:
       if: always()                   # 即使覆盖率没到 100 % 也上传，方便调试
       uses: actions/upload-artifact@v4
       with:
-        name: html-coverage-report
+        name: html-coverage-report${{ matrix.os }}
         path: htmlcov/
         retention-days: 7   
     - name: Upload test report
       if: always()                   # 即使覆盖率没到 100 % 也上传，方便调试
       uses: actions/upload-artifact@v4
       with:
-        name: test-report
+        name: test-report${{ matrix.os }}
         path: test.html
         retention-days: 7   
